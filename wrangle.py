@@ -31,20 +31,29 @@ def prepare_zillow_data(df):
     ''' Prepares zillow data'''
     #drop null values
     df = df.dropna()
+    # change fips codes to actual county name
+    def counties(row):  
+        if row['County_Code'] == 6037.00:
+            return 'Los Angeles County'
+        elif row['County_Code'] == 6059.00:
+            return 'Orange County'
+        elif row['County_Code'] == 6111.00:
+            return 'Ventura County'
+    df['County_Code'] = df.apply(lambda row: counties(row), axis=1)
+    df.rename(columns = {'County_Code':'County'}, inplace = True)
     #limit homes to 1 bed , .5 bath, and at least 120sq ft     
     df = df[df.Square_Footage > 120]
     df = df[df.Number_of_Bedrooms > 0]
     df = df[df.Number_of_Bathrooms >0]
     # convert floats to int except taxes and bedrooms
-    df['County_Code'] = df['County_Code'].astype(int)
     df['Year_Built'] = df['Year_Built'].astype(int)
     df['Square_Footage'] = df['Square_Footage'].astype(int)
     df['Number_of_Bedrooms'] = df['Number_of_Bedrooms'].astype(int)
     df['Tax_Appraised_Value'] = df['Tax_Appraised_Value'].astype(int)
     # handle outliers: square footage less than 56,000 and 7 beds and 7.5 baths or less
-    df = df[df.Number_of_Bedrooms <=7]
-    df = df[df.Number_of_Bathrooms <=7.5]
-    df = df[df.Square_Footage <=56_000]
+    # df = df[df.Number_of_Bedrooms <=7]
+    # df = df[df.Number_of_Bathrooms <=7.5]
+    # df = df[df.Square_Footage <=56_000]
     # df = df[df.Tax_Appraised_Value <=3_500_000]
 
     # save as .csv
