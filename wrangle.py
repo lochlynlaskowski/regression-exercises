@@ -3,6 +3,7 @@ import numpy as np
 import os
 from env import get_db_url
 from sklearn.model_selection import train_test_split
+import sklearn.preprocessing
 
 def get_zillow_data():
     '''Returns a dataframe of all single family residential properties from 2017.'''
@@ -70,3 +71,10 @@ def split_zillow_data(df):
                                    random_state=123)
     
     return train, validate, test
+
+def scale_zillow_data(train):
+    columns_to_scale = ['Number_of_Bedrooms','Number_of_Bathrooms', 'Square_Footage']
+    scaler = sklearn.preprocessing.QuantileTransformer(output_distribution='normal')
+    train_scaled = train.copy()
+    train_scaled[columns_to_scale] = scaler.fit_transform(train_scaled[columns_to_scale])
+    return train_scaled
